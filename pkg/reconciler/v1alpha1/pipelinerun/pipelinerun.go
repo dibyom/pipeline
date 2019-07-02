@@ -29,7 +29,7 @@ import (
 	apisconfig "github.com/tektoncd/pipeline/pkg/apis/config"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
-	artifacts "github.com/tektoncd/pipeline/pkg/artifacts"
+	"github.com/tektoncd/pipeline/pkg/artifacts"
 	listers "github.com/tektoncd/pipeline/pkg/client/listers/pipeline/v1alpha1"
 	"github.com/tektoncd/pipeline/pkg/reconciler"
 	"github.com/tektoncd/pipeline/pkg/reconciler/v1alpha1/pipeline/dag"

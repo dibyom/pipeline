@@ -83,6 +83,10 @@ type PipelineTask struct {
 	// TaskRef is a reference to a task definition.
 	TaskRef TaskRef `json:"taskRef"`
 
+	// Conditions is a list of conditions that need to be true for the task to run
+	// +optional
+	Conditions []TaskCondition `json:"conditions,omitempty"`
+
 	// Retries represents how many times this task should be retried in case of task failure: ConditionSucceeded set to False
 	// +optional
 	Retries int `json:"retries,omitempty"`
