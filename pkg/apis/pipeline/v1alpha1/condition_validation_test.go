@@ -91,3 +91,4 @@ func TestCondition_Invalidate(t *testing.T) {
 		})
 	}
 }
+

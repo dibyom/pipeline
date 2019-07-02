@@ -34,6 +34,7 @@ func TestPipeline(t *testing.T) {
 		tb.PipelineParam("first-param", tb.PipelineParamDefault("default-value"), tb.PipelineParamDescription("default description")),
 		tb.PipelineTask("foo", "banana",
 			tb.PipelineTaskParam("name", "value"),
+			tb.PipelineTaskCondition("some-condition-ref"),
 		),
 		tb.PipelineTask("bar", "chocolate",
 			tb.PipelineTaskRefKind(v1alpha1.ClusterTaskKind),
@@ -68,6 +69,7 @@ func TestPipeline(t *testing.T) {
 				Name:    "foo",
 				TaskRef: v1alpha1.TaskRef{Name: "banana"},
 				Params:  []v1alpha1.Param{{Name: "name", Value: "value"}},
+				Conditions: []v1alpha1.PipelineTaskCondition{{ConditionRef: "some-condition-ref"}},
 			}, {
 				Name:    "bar",
 				TaskRef: v1alpha1.TaskRef{Name: "chocolate", Kind: v1alpha1.ClusterTaskKind},
