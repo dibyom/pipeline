@@ -20,11 +20,13 @@ package v1alpha1
 
 import (
 	"context"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/knative/pkg/apis"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"testing"
 )
-
 func TestCondition_Validate(t *testing.T) {
 	c := Condition{
 		ObjectMeta: metav1.ObjectMeta{
@@ -43,6 +45,49 @@ func TestCondition_Validate(t *testing.T) {
 		},
 	}
 	if err := c.Validate(context.Background()); err != nil {
-		t.Errorf("TaskRun.Validate() error = %v", err)
+		t.Errorf("Condition.Validate()  unexpected error = %v", err)
+	}
+}
+
+func TestCondition_Invalidate(t *testing.T) {
+	tcs := []struct{
+		name string
+		cond Condition
+		expectedError apis.FieldError
+	}{{
+		name: "invalid meta",
+		cond: Condition{
+			ObjectMeta: metav1.ObjectMeta{
+				Name : "invalid.,name",
+			},
+		},
+		expectedError: apis.FieldError{
+			Message: "Invalid resource name: special character . must not be present",
+			Paths: []string{"metadata.name"},
+		},
+	},{
+		name: "no image",
+		cond:Condition{
+			ObjectMeta: metav1.ObjectMeta{Name: "cond"},
+			Spec: ConditionSpec{
+				Check: corev1.Container{},
+			},
+		},
+		expectedError: apis.FieldError{
+			Message: "missing field(s)",
+			Paths: []string{"Spec.Check.Image"},
+		},
+	}}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			err := tc.cond.Validate(context.Background())
+			if err == nil {
+				t.Fatalf("Expected an Error, got nothing for %v", tc)
+			}
+			if d := cmp.Diff(tc.expectedError, *err, cmpopts.IgnoreUnexported(apis.FieldError{})); d != "" {
+				t.Errorf("Condition.Validate() errors diff -want, +got: %v", d)
+			}
+		})
 	}
 }

@@ -22,16 +22,20 @@ import (
 	"k8s.io/apimachinery/pkg/api/equality"
 )
 
-func (c *Condition) Validate(ctx context.Context) *apis.FieldError {
+func (c Condition) Validate(ctx context.Context) *apis.FieldError {
 	if err := validateObjectMetadata(c.GetObjectMeta()); err != nil {
 		return err.ViaField("metadata")
 	}
-	return c.Spec.Validate(ctx)
+	return c.Spec.Validate(ctx).ViaField("Spec")
 }
 
 func (cs *ConditionSpec) Validate(ctx context.Context) *apis.FieldError {
-	if equality.Semantic.DeepEqual(cs, &ConditionSpec{}) {
+	if equality.Semantic.DeepEqual(cs, ConditionSpec{}) {
 		return apis.ErrMissingField(apis.CurrentField)
+	}
+
+	if cs.Check.Image == "" {
+		return apis.ErrMissingField("Check.Image")
 	}
 	return nil
 }
