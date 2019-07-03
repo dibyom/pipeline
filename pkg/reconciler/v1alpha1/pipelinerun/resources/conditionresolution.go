@@ -17,7 +17,7 @@
 
 package resources
 
-import (
+import 	(
 	"github.com/knative/pkg/apis"
 	corev1 "k8s.io/api/core/v1"
 
@@ -71,14 +71,19 @@ func (state TaskConditionCheckState) IsSuccess() bool {
 }
 
 // Convert a Condition to a TaskSpec
-func (rcc *ResolvedConditionCheck) ConditionToTaskSpec() *v1alpha1.TaskSpec {
+func (rcc *ResolvedConditionCheck) ConditionToTaskSpec(pr *v1alpha1.PipelineRun, rprt *ResolvedPipelineRunTask) (*v1alpha1.TaskSpec, error) {
+	metadataStep, err := GetMetadataContainerSpec(pr, rprt)
+	if err != nil {
+		return nil, err
+	}
+
 	// TODO(dibyom): Should be in SetDefaults?
 	if rcc.Condition.Spec.Check.Name == "" {
 		rcc.Condition.Spec.Check.Name = unnamedCheckNamePrefix + rcc.Condition.Name
 	}
 
 	t := &v1alpha1.TaskSpec{
-		Steps: []corev1.Container{rcc.Condition.Spec.Check},
+		Steps: []corev1.Container{metadataStep, rcc.Condition.Spec.Check},
 	}
 
 	if len(rcc.Condition.Spec.Params) > 0 {
@@ -87,7 +92,7 @@ func (rcc *ResolvedConditionCheck) ConditionToTaskSpec() *v1alpha1.TaskSpec {
 		}
 	}
 
-	return t
+	return t, nil
 }
 
 func (rcc *ResolvedConditionCheck) NewConditionCheckStatus() v1alpha1.ConditionCheckStatus {

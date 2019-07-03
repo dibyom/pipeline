@@ -565,6 +565,11 @@ func (c *Reconciler) makeConditionCheckContainer(logger *zap.SugaredLogger, rprt
 	labels := getTaskrunLabels(pr, rprt.PipelineTask.Name)
 	labels[pipeline.GroupName+pipeline.PipelineRunConditionCheckKey] = rcc.ConditionCheckName
 
+	ccs, err := rcc.ConditionToTaskSpec(pr, rprt)
+	if err != nil {
+		return nil, xerrors.Errorf("Failed to create conditionCheck container Spec %s: %w", rcc.Condition.Name, err)
+	}
+
 	tr := &v1alpha1.TaskRun{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            rcc.ConditionCheckName,
@@ -574,7 +579,7 @@ func (c *Reconciler) makeConditionCheckContainer(logger *zap.SugaredLogger, rprt
 			Annotations:     getTaskrunAnnotations(pr), // Propagate annotations from PipelineRun to TaskRun.
 		},
 		Spec: v1alpha1.TaskRunSpec{
-			TaskSpec:       rcc.ConditionToTaskSpec(),
+			TaskSpec:       ccs,
 			ServiceAccount: getServiceAccount(pr, rprt.PipelineTask.Name),
 			Timeout:        getTaskRunTimeout(pr),
 			NodeSelector:   pr.Spec.NodeSelector,

@@ -41,6 +41,7 @@ spec:
           "-entrypoint-image", "github.com/tektoncd/pipeline/cmd/entrypoint",
           "-imagedigest-exporter-image", "github.com/tektoncd/pipeline/cmd/imagedigestexporter",
           "-pr-image", "github.com/tektoncd/pipeline/cmd/pullrequest-init",
+          "-metadata-image", "github.com/tektoncd/pipeline/cmd/metadata-init",
         ]
         volumeMounts:
         - name: config-logging
