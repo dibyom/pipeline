@@ -136,7 +136,7 @@ type PipelineRunTaskRunStatus struct {
 	// Status is the TaskRunStatus for the corresponding TaskRun
 	// +optional
 	Status *TaskRunStatus `json:"status,omitempty"`
-	// ConditionChecks is the Status for the corresponding ConditionCheck
+	// ConditionChecks maps a conditionCheckName to the Status for the corresponding ConditionCheck
 	// +optional
 	ConditionChecks map[string]*PipelineRunConditionCheckStatus `json:"conditionChecks,omitempty"`
 }

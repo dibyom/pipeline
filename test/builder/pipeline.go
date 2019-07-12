@@ -231,7 +231,7 @@ func PipelineTaskOutputResource(name, resource string) PipelineTaskOp {
 // specified conditionRef
 func PipelineTaskCondition(conditionRef string) PipelineTaskOp {
 	return func(pt *v1alpha1.PipelineTask) {
-		c := v1alpha1.TaskCondition{
+		c := v1alpha1.PipelineTaskCondition{
 			ConditionRef: conditionRef,
 		}
 		pt.Conditions = append(pt.Conditions, c)

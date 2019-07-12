@@ -85,7 +85,7 @@ type PipelineTask struct {
 
 	// Conditions is a list of conditions that need to be true for the task to run
 	// +optional
-	Conditions []TaskCondition `json:"conditions,omitempty"`
+	Conditions []PipelineTaskCondition `json:"conditions,omitempty"`
 
 	// Retries represents how many times this task should be retried in case of task failure: ConditionSucceeded set to False
 	// +optional
@@ -109,6 +109,17 @@ type PipelineTask struct {
 type PipelineTaskParam struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+// PipelineTaskCondition allows a PipelineTask to declare a Condition to be evaluated before
+// the Task is run.
+type PipelineTaskCondition struct {
+	// ConditionRef is the name of the Condition to use for the conditionCheck
+	ConditionRef string `json:"conditionRef"`
+
+	// Params declare parameters passed to this Condition
+	// +optional
+	Params []Param `json:"params,omitempty"`
 }
 
 // PipelineDeclaredResource is used by a Pipeline to declare the types of the

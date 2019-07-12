@@ -60,7 +60,7 @@ var pts = []v1alpha1.PipelineTask{{
 }, {
 	Name:    "mytask6",
 	TaskRef: v1alpha1.TaskRef{Name: "taskWithConditions"},
-	Conditions: []v1alpha1.TaskCondition{{
+	Conditions: []v1alpha1.PipelineTaskCondition{{
 		ConditionRef: "always-true",
 	}},
 }}
@@ -1532,7 +1532,7 @@ func TestResolveConditionChecks(t *testing.T) {
 	pts := []v1alpha1.PipelineTask{{
 		Name:    "mytask1",
 		TaskRef: v1alpha1.TaskRef{Name: "task"},
-		Conditions: []v1alpha1.TaskCondition{{
+		Conditions: []v1alpha1.PipelineTaskCondition{{
 			ConditionRef: "always-true",
 		}},
 	}}
@@ -1610,7 +1610,7 @@ func TestResolveConditionChecks_ConditionDoesNotExist(t *testing.T) {
 	pts := []v1alpha1.PipelineTask{{
 		Name:    "mytask1",
 		TaskRef: v1alpha1.TaskRef{Name: "task"},
-		Conditions: []v1alpha1.TaskCondition{{
+		Conditions: []v1alpha1.PipelineTaskCondition{{
 			ConditionRef: "does-not-exist",
 		}},
 	}}
@@ -1666,7 +1666,7 @@ func TestResolveConditionCheck_UseExistingConditionCheckName(t *testing.T) {
 	pts := []v1alpha1.PipelineTask{{
 		Name:    "mytask1",
 		TaskRef: v1alpha1.TaskRef{Name: "task"},
-		Conditions: []v1alpha1.TaskCondition{{
+		Conditions: []v1alpha1.PipelineTaskCondition{{
 			ConditionRef: "always-true",
 		}},
 	}}

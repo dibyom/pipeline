@@ -24,14 +24,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// Add validation for TaskConditions?
-type TaskCondition struct {
-	ConditionRef string `json:"conditionRef"`
-	// TODO: Support a ConditionSpec?
-	// +optional
-	Params []Param `json:"params,omitempty"`
-}
-
 // Check that Task may be validated and defaulted.
 var _ apis.Validatable = (*Condition)(nil)
 
@@ -39,11 +31,8 @@ var _ apis.Validatable = (*Condition)(nil)
 // +genclient:noStatus
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// Task represents a collection of sequential steps that are run as part of a
-// Pipeline using a set of inputs and producing a set of outputs. Tasks execute
-// when TaskRuns are created that provide the input parameters and resources and
-// output resources the Task requires.
-//
+// Condition declares a step that is used to gate the execution of a Task in a Pipeline.
+// A condition execution (ConditionCheck) evaluates to either true or false
 // +k8s:openapi-gen=true
 type Condition struct {
 	metav1.TypeMeta `json:",inline"`
@@ -55,15 +44,22 @@ type Condition struct {
 	Spec ConditionSpec `json:"spec"`
 }
 
+// ConditionSpec defines the desired state of the Condition
 type ConditionSpec struct {
+	// Check declares container whose exit code determines where a condition is true or false
+	Check corev1.Container `json:"check,omitempty"`
+
+	// Params is an optional set of parameters which must be supplied by the user when a Condition
+	// is evaluated
 	// +optional
 	Params []ParamSpec `json:"params,omitempty"`
-	// Check is a container whose exit code determines where a condition is true or false
-	Check corev1.Container `json:"check,omitempty"`
 }
 
+
+// ConditionCheck represents a single evaluation of a Condition step.
 type ConditionCheck TaskRun
 
+// ConditionCheckStatus is the observed state of a ConditionCheck
 type ConditionCheckStatus TaskRunStatus
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
