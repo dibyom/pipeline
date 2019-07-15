@@ -405,10 +405,13 @@ func PipelineRunCompletionTime(t time.Time) PipelineRunStatusOp {
 	}
 }
 
-// PipelineRunTaskRunsStatus sets the TaskRuns of the PipelineRunStatus.
-func PipelineRunTaskRunsStatus(taskRuns map[string]*v1alpha1.PipelineRunTaskRunStatus) PipelineRunStatusOp {
+// PipelineRunTaskRunsStatus sets the status of TaskRun to the PipelineRunStatus.
+func PipelineRunTaskRunsStatus(taskRunName string, status *v1alpha1.PipelineRunTaskRunStatus) PipelineRunStatusOp {
 	return func(s *v1alpha1.PipelineRunStatus) {
-		s.TaskRuns = taskRuns
+		if s.TaskRuns == nil {
+			s.TaskRuns = make(map[string]*v1alpha1.PipelineRunTaskRunStatus)
+		}
+		s.TaskRuns[taskRunName] = status
 	}
 }
 
