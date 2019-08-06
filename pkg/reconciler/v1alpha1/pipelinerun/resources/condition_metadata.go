@@ -35,18 +35,20 @@ var (
 		"The container image containing our Metadata binary.")
 )
 
+// ConditionMetadata represents the metadata about pipelinerun state that
+// is accessible to a condition
 type ConditionMetadata struct {
-	PipelineRun *v1alpha1.PipelineRun    `json:"pipelineRun,omitempty"`
-	TaskRun     *ResolvedPipelineRunTask `json:"runState,omitempty"`
+	PipelineRun *v1alpha1.PipelineRun `json:"pipelinerun,omitempty"`
+	Pipeline    *v1alpha1.Pipeline    `Json:"pipeline,omitempty`
+	Resources   []*v1alpha1.PipelineResource
 }
 
-func GetMetadataContainerSpec(run *v1alpha1.PipelineRun, rprt *ResolvedPipelineRunTask) (corev1.Container, error) {
+func getMetadataContainerSpec(run *v1alpha1.PipelineRun, rprt *ResolvedPipelineRunTask) (corev1.Container, error) {
 	m := &ConditionMetadata{
 		PipelineRun: run,
-		TaskRun:     rprt,
 	}
 
-	prb64, err := PipelineRunAsBase64(m)
+	prb64, err := pipelineRunAsBase64(m)
 	if err != nil {
 		return corev1.Container{}, err
 	}
@@ -58,17 +60,17 @@ func GetMetadataContainerSpec(run *v1alpha1.PipelineRun, rprt *ResolvedPipelineR
 			Name:  "PRMETADATA",
 			Value: prb64,
 		}},
-		WorkingDir: "/workspace",
+		WorkingDir: "/workspace/metadata/",
 	}
 
 	return step, nil
 }
 
-func PipelineRunAsBase64(m *ConditionMetadata) (string, error) {
-	asJson, err := json.Marshal(m)
+func pipelineRunAsBase64(m *ConditionMetadata) (string, error) {
+	asJSON, err := json.Marshal(m)
 	if err != nil {
 		return "", xerrors.Errorf("Could not marshall PipelineRun %s to JSON: %w", m.PipelineRun.Name, err)
 	}
 
-	return base64.StdEncoding.EncodeToString(asJson), nil
+	return base64.StdEncoding.EncodeToString(asJSON), nil
 }

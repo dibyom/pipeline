@@ -60,7 +60,7 @@ func (state TaskConditionCheckState) HasStarted() bool {
 	return hasStarted
 }
 
-// IsComplete returns true if the status for all conditionChecks for a task indicate that they are done
+// IsDone returns true if the status for all conditionChecks for a task indicate that they are done
 func (state TaskConditionCheckState) IsDone() bool {
 	if !state.HasStarted() {
 		return false
@@ -72,7 +72,7 @@ func (state TaskConditionCheckState) IsDone() bool {
 	return isDone
 }
 
-// IsComplete returns true if the status for all conditionChecks for a task indicate they have
+// IsSuccess returns true if the status for all conditionChecks for a task indicate they have
 // completed successfully
 func (state TaskConditionCheckState) IsSuccess() bool {
 	if !state.IsDone() {
@@ -86,13 +86,18 @@ func (state TaskConditionCheckState) IsSuccess() bool {
 }
 
 // ConditionToTaskSpec creates a TaskSpec from a given Condition
-func (rcc *ResolvedConditionCheck) ConditionToTaskSpec() *v1alpha1.TaskSpec {
+func (rcc *ResolvedConditionCheck) ConditionToTaskSpec(pr *v1alpha1.PipelineRun, rprt *ResolvedPipelineRunTask) (*v1alpha1.TaskSpec, error) {
 	if rcc.Condition.Spec.Check.Name == "" {
 		rcc.Condition.Spec.Check.Name = unnamedCheckNamePrefix + rcc.Condition.Name
 	}
 
+	metadataStep, err := getMetadataContainerSpec(pr, rprt)
+	if err != nil {
+		return nil, err
+	}
+
 	t := &v1alpha1.TaskSpec{
-		Steps: []corev1.Container{rcc.Condition.Spec.Check},
+		Steps: []corev1.Container{metadataStep, rcc.Condition.Spec.Check},
 	}
 
 	if len(rcc.Condition.Spec.Params) > 0 {
@@ -103,7 +108,7 @@ func (rcc *ResolvedConditionCheck) ConditionToTaskSpec() *v1alpha1.TaskSpec {
 		// in order to apply taskrun substitution
 		convertParamTemplates(&t.Steps[0], rcc.Condition.Spec.Params)
 	}
-	return t
+	return t, nil
 }
 
 // Replaces all instances of ${params.x} in the container to ${inputs.params.x} for each param name
@@ -115,7 +120,7 @@ func convertParamTemplates(container *corev1.Container, params []v1alpha1.ParamS
 	}
 }
 
-// NewConditionCheck status creates a ConditionCheckStatus from a ConditionCheck
+// NewConditionCheckStatus creates a ConditionCheckStatus from a ConditionCheck
 func (rcc *ResolvedConditionCheck) NewConditionCheckStatus() *v1alpha1.ConditionCheckStatus {
 	var checkStep corev1.ContainerState
 	trs := rcc.ConditionCheck.Status
